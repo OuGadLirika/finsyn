@@ -63,15 +63,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
-        http.cors().disable();
+        http.cors();
         http.anonymous().disable();
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthenticationConverterForKeycloak());
 
-        http.authorizeRequests()
-                .anyRequest()
-                    .hasRole("user");
+        http.authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/avatars/**").permitAll()
+                .anyRequest().hasRole("user")
+        );
 
         http.addFilterAfter(jwtAuthUserFilterBean(), SwitchUserFilter.class);
 

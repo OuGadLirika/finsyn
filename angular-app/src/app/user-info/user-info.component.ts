@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {AuthService} from "../auth/auth.service";
 import {WebApiService} from "../api/web-api.service";
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-user-info',
@@ -10,21 +11,26 @@ import {WebApiService} from "../api/web-api.service";
 })
 export class UserInfoComponent implements OnInit {
 
-  message: string = 'null';
+  userInfo: string = '';
+  error: string = '';
 
   constructor(private authService: AuthService, private webApiService: WebApiService, private http: HttpClient) { }
 
   ngOnInit(): void {
-    this.message = this.authService.getUsername();
+    this.loadUserInfo();
+  }
 
-    this.webApiService.getUserInfo().subscribe({
-      next: data => {
-        this.message += ", " + data;
-      }, error: err => {
-        console.log(err);
+  private loadUserInfo(): void {
+    this.webApiService.getUserInfo1().subscribe({
+      next: (data: string) => {
+        this.userInfo = data;
+        this.error = '';
+      },
+      error: (err: HttpErrorResponse) => {
+        this.error = 'Ошибка при загрузке данных пользователя';
+        console.error('Error loading user info:', err);
       }
     });
-
   }
 
 }
